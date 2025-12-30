@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordenação de Contabilidade - Pro Saúde</title>
+
+    <!-- Incluir estilos globais -->
+    {% include 'includes/styles.html' %}
+    
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+    <div class="content-container">
+        <main class="main-content">
+            <div class="welcome-section">
+                <h1>Liquidação do Pro Saúde</h1>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Funcionalidades SIAFI</h3>
+                        <ul>
+                            <li><a href="/incdh">Incluir Documento Hábil</a></li>
+                            <li><a href="/conne">Consultar Nota de Empenho</a></li>
+                            <li><a href="/conferir_liquidacao">Conferir Liquidação</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3>Funcionalidades eDoc</h3>
+                        <ul>
+                            <li><a href="/pdf_NFSE">Extrair dados da NFSE</a></li>
+                            <li><a href="/pdf_ateste">Extrair dados do Relatório de Ateste</a></li>
+                            <li><a href="/ns_edoc">Incluir NS ao processo eDoc</a></li>
+                            <li><a href="/pdf_ateste_cnpj">Extrair Relatório (CNPJ único)</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <script>
+        // Adicionar feedback visual para links do menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuLinks = document.querySelectorAll('.dropdown-content a');
+            
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Mostrar feedback de carregamento
+                    const originalText = this.textContent;
+                    this.textContent = 'Executando...';
+                    this.style.backgroundColor = '#ffcc00';
+                    this.style.color = '#000';
+                    
+                    // Restaurar após um tempo (caso a página não redirecione)
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.backgroundColor = '';
+                        this.style.color = '';
+                    }, 3000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

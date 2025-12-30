@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordenação de Contabilidade - Pro Saúde</title>
+
+    <!-- Incluir estilos globais -->
+    {% include 'includes/styles.html' %}
+    
+</head>
+<body>
+    {% include 'includes/header.html' %}
+
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <script>
+        // Adicionar feedback visual para links do menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuLinks = document.querySelectorAll('.dropdown-content a');
+            
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Mostrar feedback de carregamento
+                    const originalText = this.textContent;
+                    this.textContent = 'Executando...';
+                    this.style.backgroundColor = '#ffcc00';
+                    this.style.color = '#000';
+                    
+                    // Restaurar após um tempo (caso a página não redirecione)
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.backgroundColor = '';
+                        this.style.color = '';
+                    }, 3000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

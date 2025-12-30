@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrair dados do Relatório de Ateste - Pro Saúde</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #009966;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: normal;
+            color: white;
+        }
+        
+        .nav-yellow-bar {
+            height: 3px;
+            background-color: #ffcc00;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            color: #009966;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #009966;
+        }
+
+        .form-help {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #009966;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #008855;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #009966;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #009966;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .info-card {
+            background-color: #e8f5e8;
+            border-left: 4px solid #009966;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-card h3 {
+            color: #009966;
+            margin-bottom: 10px;
+        }
+
+        .info-card ul {
+            margin-left: 20px;
+        }
+
+        .info-card li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        #file-upload-group {
+            background-color: #f8f9fa;
+            border: 2px dashed #009966;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        #file-upload-group:hover {
+            background-color: #e8f5e8;
+        }
+
+        #file-upload-group input[type="file"] {
+            border: none;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .warning-card {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .warning-card h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .warning-card p {
+            color: #856404;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <img src="{{ url_for('static', filename='images/camara-logo.png') }}" alt="Logo Câmara dos Deputados" style="height: 50px; margin-right: 30px;">
+        <div class="header-title">Coordenação de Contabilidade</div>
+    </header>
+
+    <div class="nav-yellow-bar"></div>
+
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Extrair dados do Relatório de Ateste</h1>
+            <p>Configure os parâmetros para extração de dados bancários e fiscais</p>
+        </div>
+
+        <div class="info-card">
+            <h3>Sobre o Relatório de Ateste:</h3>
+            <ul>
+                <li>Extrai dados bancários dos prestadores (banco, agência, conta)</li>
+                <li>Processa informações de valores bruto, líquido e retenções</li>
+                <li>Identifica dados das notas fiscais e seus valores</li>
+                <li>Atualiza informações de bancos automaticamente</li>
+            </ul>
+        </div>
+
+        <div class="warning-card">
+            <h3>Importante:</h3>
+            <p>Para "Baixar do eDoc": certifique-se de que está na página do processo correto antes de executar.</p>
+            <p>Para "Upload local": o arquivo deve ser o relatório de ateste em formato PDF.</p>
+        </div>
+
+        <form id="atesteForm" method="POST" action="/pdf_ateste" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Origem do arquivo:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="baixar" name="escolha" value="Baixar" checked onclick="toggleFileUpload()">
+                        <label for="baixar">Baixar do eDoc</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="selecionar" name="escolha" value="Selecionar" onclick="toggleFileUpload()">
+                        <label for="selecionar">Selecionar arquivo local</label>
+                    </div>
+                </div>
+                <div class="form-help">Escolha se deve baixar o relatório diretamente do eDoc ou fazer upload de um arquivo local</div>
+            </div>
+
+            <div class="form-group" id="file-upload-group" style="display: none;">
+                <label for="pdf_file">Arquivo PDF do Relatório:</label>
+                <input type="file" id="pdf_file" name="pdf_file" accept=".pdf">
+                <div class="file-info">
+                    <strong>Selecione o arquivo PDF do Relatório de Ateste</strong><br>
+                    Formatos aceitos: .pdf | Tamanho máximo: 16MB
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Extrair Dados do Relatório
+                </button>
+                <a href="/" class="btn btn-secondary">Cancelar</a>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Extraindo dados do relatório... Por favor, aguarde.</p>
+            </div>
+        </form>
+
+        <a href="/" class="back-link">← Voltar ao Menu Principal</a>
+    </div>
+
+    <script>
+        function toggleFileUpload() {
+            const fileUploadGroup = document.getElementById('file-upload-group');
+            const selecionarRadio = document.getElementById('selecionar');
+            
+            if (selecionarRadio.checked) {
+                fileUploadGroup.style.display = 'block';
+                document.getElementById('pdf_file').required = true;
+            } else {
+                fileUploadGroup.style.display = 'none';
+                document.getElementById('pdf_file').required = false;
+                // Limpa o arquivo selecionado quando muda para "Baixar"
+                document.getElementById('pdf_file').value = '';
+            }
+        }
+
+        // Feedback visual para seleção de arquivo
+        document.getElementById('pdf_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileInfo = document.querySelector('.file-info');
+            
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+                fileInfo.innerHTML = `
+                    <strong>✓ Arquivo selecionado:</strong> ${file.name}<br>
+                    <strong>Tamanho:</strong> ${fileSize} MB | <strong>Tipo:</strong> ${file.type}
+                `;
+                fileInfo.style.color = '#009966';
+            } else {
+                fileInfo.innerHTML = `
+                    <strong>Selecione o arquivo PDF do Relatório de Ateste</strong><br>
+                    Formatos aceitos: .pdf | Tamanho máximo: 16MB
+                `;
+                fileInfo.style.color = '#666';
+            }
+        });
+
+        document.getElementById('atesteForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const selecionarRadio = document.getElementById('selecionar');
+            const pdfFile = document.getElementById('pdf_file');
+            
+            // Validação específica para upload de arquivo
+            if (selecionarRadio.checked) {
+                if (!pdfFile.files || pdfFile.files.length === 0) {
+                    alert('Por favor, selecione um arquivo PDF.');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                const file = pdfFile.files[0];
+                
+                // Verifica se é PDF
+                if (!file.type.includes('pdf')) {
+                    alert('Por favor, selecione apenas arquivos PDF.');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Verifica tamanho (16MB max)
+                if (file.size > 16 * 1024 * 1024) {
+                    alert('O arquivo deve ter no máximo 16MB.');
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            // Se passou na validação, mostra loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = selecionarRadio.checked ? 'Fazendo Upload...' : 'Processando...';
+            loading.style.display = 'block';
+            
+            // Atualiza mensagem após 2 segundos
+            setTimeout(() => {
+                if (loading.style.display === 'block') {
+                    loading.innerHTML = `
+                        <div class="loading-spinner"></div>
+                        <p>Processando relatório PDF... Extraindo dados bancários e fiscais...</p>
+                    `;
+                }
+            }, 2000);
+
+            // Mensagem adicional após 5 segundos
+            setTimeout(() => {
+                if (loading.style.display === 'block') {
+                    loading.innerHTML = `
+                        <div class="loading-spinner"></div>
+                        <p>Analisando tabelas e atualizando informações bancárias... Quase pronto!</p>
+                    `;
+                }
+            }, 5000);
+        });
+
+        // Previne duplo submit
+        let formSubmitted = false;
+        document.getElementById('atesteForm').addEventListener('submit', function(e) {
+            if (formSubmitted) {
+                e.preventDefault();
+                return false;
+            }
+            formSubmitted = true;
+        });
+
+        // Dicas contextual baseada na escolha
+        document.querySelectorAll('input[name="escolha"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const helpText = document.querySelector('.form-help');
+                if (this.value === 'Baixar') {
+                    helpText.textContent = 'Certifique-se de que está na página do processo no eDoc antes de continuar';
+                } else {
+                    helpText.textContent = 'Faça upload do arquivo PDF do Relatório de Ateste para processamento local';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
